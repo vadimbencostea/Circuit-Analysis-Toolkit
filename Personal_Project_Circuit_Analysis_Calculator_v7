@@ -14,7 +14,9 @@ from datetime import datetime # Imports the date used in the history file
 
 # THE 3 VARIATIONS FOR OHMS LAW
 
-def ohms_law_current(resistance, voltage): # This function does the ohms law for current
+# This function does the ohms law for current
+
+def ohms_law_current(resistance, voltage):
     try:
         resistance = float(resistance)
         voltage = float(voltage)
