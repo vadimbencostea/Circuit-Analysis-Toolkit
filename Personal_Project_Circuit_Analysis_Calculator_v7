@@ -1,0 +1,417 @@
+# Personal Project-Circuit Analysis Calculator
+
+# Creator: Vadim Costea
+# Purpose: Automate circuit calculations to improve efficency of circuit Analysis
+# Bugs: 
+
+import tkinter as tk # Imported the tkinter pack
+
+from tkinter import ttk # Used for creating the notebook
+
+from datetime import datetime # Imports the date used in the history file
+# BEGINNING OF CODE.
+
+# THE 3 VARIATIONS FOR OHMS LAW
+def ohms_law_current(resistance, voltage): # This function does the ohms law for current
+    try:
+        resistance = float(resistance)
+        voltage = float(voltage)
+        return voltage / resistance
+
+    except (ValueError, ZeroDivisionError):
+        return None
+
+
+def ohms_law_resistance(current, voltage): # This function does the ohms law for resistence
+    try:
+        current = float(current)
+        voltage = float(voltage)
+        return voltage / current
+
+    except (ValueError, ZeroDivisionError): 
+        return None
+
+
+def ohms_law_voltage(resistance, current): # This function does the ohms law for voltage
+    try:
+        resistance = float(resistance)
+        current = float(current)
+        return resistance * current
+
+    except ValueError:
+        return None
+
+# POWER EQUATIONS DEPENDING ON THE KNOWNS
+def current_resistance_power(current, resistance):
+    try:
+        current = float(current)
+        resistance = float(resistance)
+        return current ** 2 * resistance
+
+    except ValueError:
+        return None
+
+def current_voltage_power(current, voltage):
+    try:
+        current = float(current)
+        voltage = float(voltage)
+        return current * voltage
+
+    except ValueError:
+        return None
+
+def voltage_resistance_power(voltage, resistance):
+    try:
+        voltage = float(voltage)
+        resistance = float(resistance)
+        return voltage ** 2 / resistance
+
+    except (ValueError, ZeroDivisionError):
+        return None
+
+# Equivalent Resistence Equations
+
+def parallel_resistance(r1, r2):
+    try:
+        r1 = float(r1)
+        r2 = float(r2)
+        top = r1 * r2
+        bottom = r1 + r2
+        return top / bottom
+
+    except ValueError:
+        return None
+
+def series_resistance(r1, r2):
+    try:
+        r1 = float(r1)
+        r2 = float(r2)
+        return r1 + r2
+
+    except ValueError:
+        return None
+
+# VOLTAGE DIVISION EQUATION
+
+def voltage_division_eqn(v_source, r, r_eq):
+    try:
+        v_source = float(v_source)
+        r = float(r)
+        r_eq = float(r_eq)
+        wanted_voltage = v_source * (r / r_eq)
+        return wanted_voltage
+
+    except (ValueError, ZeroDivisionError):
+        return None
+
+# CURRENT DIVISION EQUATION
+
+def current_division_eqn(i_source, r, r_eq):
+    try:
+        i_source = float(i_source)
+        r = float(r)
+        r_eq = float(r_eq)
+        wanted_current = i_source * (r_eq / r)
+        return wanted_current
+
+    except (ValueError, ZeroDivisionError):
+        return None
+
+# OHM'S LAW CALCULATIONS
+def calculate_voltage(): # This function uses the respective law to calculate voltage
+    voltage = ohms_law_voltage(resistance_box.get(), current_box.get())
+    if voltage is not None:
+        result_label.config(text=f"Voltage = {voltage:0.3f} V")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{resistance_box.get()} Ohms x\n{current_box.get()} A =\n{voltage:.3f} V\n\n")
+
+    else:
+        result_label.config(text="Invalid Input")
+
+def calculate_current(): # This function uses the respective law to calculate current
+    current = ohms_law_current(resistance_box.get(), voltage_box.get())
+    if current is not None:
+        result_label.config(text=f"Current = {current:0.3f} A")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{voltage_box.get()} V /\n{resistance_box.get()} Ohms =\n{current:.3f} A\n\n")
+
+    else:
+        result_label.config(text="Invalid Input")
+
+def calculate_resistance(): # This function uses the respective law to calculate resistance
+    resistance = ohms_law_resistance(current_box.get(), voltage_box.get())
+    if resistance is not None:
+        result_label.config(text=f"Resistance = {resistance:0.3f} Ohms")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{voltage_box.get()} V /\n{current_box.get()} A =\n{resistance:.3f} Ohms\n\n")
+
+    else:
+        result_label.config(text=f"Invalid Input")
+
+window = tk.Tk() # Creates the window itself
+
+notebook = ttk.Notebook(window)
+notebook.pack(fill="both", expand=True)
+
+# Creates the Tabs
+ohms_tab = tk.Frame(notebook)
+power_tab = tk.Frame(notebook)
+equivalent_resistance_tab = tk.Frame(notebook)
+voltage_division_tab = tk.Frame(notebook)
+current_division_tab = tk.Frame(notebook)
+history_tab = tk.Frame(notebook)
+
+notebook.add(ohms_tab, text="Ohm's Law")
+notebook.add(power_tab, text="Power")
+notebook.add(equivalent_resistance_tab, text="Equivalent Resistence")
+notebook.add(voltage_division_tab, text="Voltage Divison")
+notebook.add(current_division_tab, text="Current Divison")
+notebook.add(history_tab, text="History")
+
+window.title("Circuit Analysis Toolkit") # Names the Window
+window.geometry("500x500") # Sets the window's size
+
+# Ohms Law Tab
+
+tk.Label(ohms_tab, text="Resistance (OHMS)").pack() # Resistance Label (NOTE: The Labels and things like entry boxes and buttons, go from up down)
+
+resistance_box = tk.Entry(ohms_tab) # Entry Box for resistance
+resistance_box.pack()
+
+tk.Label(ohms_tab, text="Current (AMPERES)").pack() # Current Label
+
+current_box = tk.Entry(ohms_tab) # Entry Box for current
+current_box.pack() # .pack() actually puts the item on the screen
+
+tk.Label(ohms_tab, text="Voltage (VOLTS)").pack() # Voltage Label
+
+voltage_box = tk.Entry(ohms_tab) # Entry Box for voltage
+voltage_box.pack()
+
+button = tk.Button(ohms_tab, text="Calculate Voltage", command=calculate_voltage) # Button for Voltage (NOTE: The button needs a location, text on in, and the command executed)
+button.pack(pady=10) # Adds space around the button
+
+button = tk.Button(ohms_tab, text="Calculate Current", command=calculate_current) # Button for Current
+button.pack(pady=10)
+
+button = tk.Button(ohms_tab, text="Calculate Resistance", command=calculate_resistance) # Button for Resistance
+button.pack(pady=10)
+
+result_label = tk.Label(ohms_tab, text="") # The label in which the result will change
+result_label.pack()
+
+# POWER FUNCTIONS 
+def electrical_power_1():
+    power = current_resistance_power(power_current_box.get(), power_resistance_box.get())
+    if power is not None:
+        power_result_label.config(text=f"Power = {power:0.3f} W")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{power_current_box.get()}^2 A x\n{power_resistance_box.get()} Ohms =\n{power:.3f} W\n\n")
+    else:
+        power_result_label.config(text="Invalid Input")
+
+def electrical_power_2():
+    power = current_voltage_power(power_current_box.get(), power_voltage_box.get())
+    if power is not None:
+        power_result_label.config(text=f"Power = {power:0.3f} W")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{power_current_box.get()} A x\n{power_voltage_box.get()} V =\n{power:.3f} W\n\n")
+
+    else:
+        power_result_label.config(text="Invalid Input")
+
+def electrical_power_3():
+    power = voltage_resistance_power(power_voltage_box.get(), power_resistance_box.get())
+    if power is not None:
+        power_result_label.config(text=f"Power = {power:0.3f} W")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{power_voltage_box.get()}^2 V /\n{power_resistance_box.get()} Ohms =\n{power:.3f} W\n\n")
+
+    else:
+        power_result_label.config(text="Invalid Input")
+
+# Power Tab
+
+tk.Label(power_tab, text="Resistance (OHMS)").pack()
+
+power_resistance_box = tk.Entry(power_tab) # Entry Box for resistance
+power_resistance_box.pack()
+
+tk.Label(power_tab, text="Current (AMPERES)").pack() # Current Label
+
+power_current_box = tk.Entry(power_tab) # Entry Box for current
+power_current_box.pack() # .pack() actually puts the item on the screen
+
+tk.Label(power_tab, text="Voltage (VOLTS)").pack() # Voltage Label
+
+power_voltage_box = tk.Entry(power_tab) # Entry Box for voltage
+power_voltage_box.pack()
+
+button = tk.Button(power_tab, text="Power (Current & Resistance)", command=electrical_power_1)
+button.pack(pady=10)
+
+button = tk.Button(power_tab, text="Power (Current & Voltage)", command=electrical_power_2)
+button.pack(pady=10)
+
+button = tk.Button(power_tab, text="Power (Voltage & Resistance)", command=electrical_power_3)
+button.pack(pady=10)
+
+power_result_label = tk.Label(power_tab, text="") # The label in which the result will change
+power_result_label.pack()
+
+# Equivalent Resistance Functions
+def resistors_in_parallel():
+    resistance = parallel_resistance(r1_box.get(), r2_box.get())
+    if resistance is not None:
+        resistance_result_label.config(text=f"Equivalent Resistance = {resistance:0.3f} Ohms")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{r1_box.get()} Ohms ||\n{r2_box.get()} Ohms =\n{resistance:.3f} Ohms\n\n")
+
+    else:
+        resistance_result_label.config(text="Invaild Input")
+
+def resistors_in_series():
+    resistance = series_resistance(r1_box.get(), r2_box.get())
+    if resistance is not None:
+        resistance_result_label.config(text=f"Equivalent Resistance = {resistance:0.3f} Ohms")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{r1_box.get()} Ohms +\n{r2_box.get()} Ohms =\n{resistance:.3f} Ohms\n\n")
+
+    else:
+        resistance_result_label.config(text="Invaild Input")
+
+
+# Equivalent Resistance Tab
+
+tk.Label(equivalent_resistance_tab, text="Resistance 1 (OHMS)").pack()
+
+r1_box = tk.Entry(equivalent_resistance_tab)
+r1_box.pack()
+
+tk.Label(equivalent_resistance_tab, text="Resistance 2 (OHMS)").pack()
+
+r2_box = tk.Entry(equivalent_resistance_tab)
+r2_box.pack()
+
+button = tk.Button(equivalent_resistance_tab, text="Parallel Resistance", command=resistors_in_parallel)
+button.pack(pady=10)
+
+button = tk.Button(equivalent_resistance_tab, text="Series Resistance", command=resistors_in_series)
+button.pack(pady=10)
+
+resistance_result_label = tk.Label(equivalent_resistance_tab, text="")
+resistance_result_label.pack()
+
+# VOLTAGE DIVISON FUNCTION
+
+def voltage_division():
+    voltage = voltage_division_eqn(volt_division_v_box.get(), volt_division_r_box.get(), volt_division_r_eq_box.get())
+    if voltage is not None:
+        volt_division_result.config(text=f"Voltage = {voltage:0.3f} V")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{volt_division_v_box.get()} V *\n({volt_division_r_box.get()} Ohms / {volt_division_r_eq_box.get()} Ohms) =\n{voltage:0.3f} V\n\n")
+
+    else:
+        volt_division_result.config(text="Invalid Input")
+# VOLTAGE DIVISON TAB
+
+tk.Label(voltage_division_tab, text="Equivalent Resistance (OHMS)").pack()
+
+volt_division_r_eq_box = tk.Entry(voltage_division_tab)
+volt_division_r_eq_box.pack()
+
+tk.Label(voltage_division_tab, text="Resistance (OHMS)").pack()
+
+volt_division_r_box = tk.Entry(voltage_division_tab)
+volt_division_r_box.pack()
+
+tk.Label(voltage_division_tab, text="Source Voltage (VOLTS)").pack()
+
+volt_division_v_box = tk.Entry(voltage_division_tab)
+volt_division_v_box.pack()
+
+tk.Button(voltage_division_tab, text="Find the voltage at 'Resistance (OHMS)'", command=voltage_division).pack(pady=10)
+
+volt_division_result = tk.Label(voltage_division_tab, text="")
+volt_division_result.pack()
+
+# CURRENT DIVISION FUNCTION
+
+def current_division():
+    current = current_division_eqn(cur_division_i_box.get(), cur_division_r_box.get(), cur_division_r_eq_box.get())
+    if current is not None:
+        cur_division_result.config(text=f"Current = {current:0.3f} A")
+        with open("readings_history.txt", "a") as f:
+            f.write(f"------------------\nDate: {datetime.now()}\n{cur_division_i_box.get()} A *\n({cur_division_r_eq_box.get()} Ohms / {cur_division_r_box.get()} Ohms) =\n{current:0.3f} A\n\n")
+
+    else:
+        cur_division_result.config(text="Invaild Input")
+
+# Current Division Tab
+
+tk.Label(current_division_tab, text="Equivalent Resistance (OHMS)").pack()
+
+cur_division_r_eq_box = tk.Entry(current_division_tab)
+cur_division_r_eq_box.pack()
+
+tk.Label(current_division_tab, text="Resistance (OHMS)").pack()
+
+cur_division_r_box = tk.Entry(current_division_tab)
+cur_division_r_box.pack()
+
+tk.Label(current_division_tab, text="Source Current (AMPERES)").pack()
+
+cur_division_i_box = tk.Entry(current_division_tab)
+cur_division_i_box.pack()
+
+tk.Button(current_division_tab, text="Find the current at 'Resistance (OHMS)'", command=current_division).pack(pady=10)
+
+cur_division_result = tk.Label(current_division_tab, text="")
+cur_division_result.pack()
+
+# Delete History Button
+def clear_history():
+    open("readings_history.txt", "w").close()
+    result_label.config(text="History Cleared")
+    power_result_label.config(text="History Cleared")
+    resistance_result_label.config(text="History Cleared")
+    volt_division_result.config(text="History Cleared")
+    cur_division_result.config(text="History Cleared")
+
+# Display History Refresh Button
+
+def history_refresh():
+    history_display.delete("1.0", tk.END)
+    try:
+        with open("readings_history.txt", "r") as f:
+            history_display.insert(tk.END, f.read())
+
+    except FileNotFoundError:
+        history_display.insert(tk.END, "No history found")
+
+
+
+# Ohms law Tab
+tk.Button(ohms_tab, text="Clear History", command=clear_history).pack()
+
+# Power Tab
+tk.Button(power_tab, text="Clear History", command=clear_history).pack()
+
+# Equivalent Resistance Tab
+tk.Button(equivalent_resistance_tab, text="Clear History", command=clear_history).pack()
+
+# Voltage Divison Tab
+tk.Button(voltage_division_tab, text="Clear History", command=clear_history).pack()
+
+# Current Division Tab
+tk.Button(current_division_tab, text="Clear History", command=clear_history).pack()
+
+# History Tab
+history_display = tk.Text(history_tab, height=20, width=60)
+history_display.pack()
+
+refresh_history = tk.Button(history_tab, text="Refresh History", command=history_refresh)
+refresh_history.pack()
+
+
+window.mainloop()
